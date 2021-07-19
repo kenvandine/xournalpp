@@ -1,0 +1,138 @@
+name: xournalpp
+adopt-info: xournalpp
+summary: Xournal++
+description: |
+  Handwriting notetaking software with PDF annotation support
+
+grade: stable
+confinement: strict
+base: core20
+architectures:
+  - build-on: amd64
+
+slots:
+  dbus-xournalpp:
+    interface: dbus
+    bus: session
+    name: com.github.xournalpp.xournalpp
+
+layout:
+  /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/alsa-lib:
+    bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/alsa-lib
+  /etc/asound.conf:
+    bind-file: $SNAP/etc/asound.conf
+  /usr/share/alsa/alsa.conf:
+    bind-file: $SNAP/usr/share/alsa/alsa.conf
+
+apps:
+  xournalpp:
+    command: usr/bin/xournalpp
+    common-id: com.github.xournalpp.xournalpp.desktop
+    desktop: usr/share/applications/com.github.xournalpp.xournalpp.desktop
+    extensions: [gnome-3-38]
+    environment:
+      PATH: $PATH:$SNAP/usr/bin:$SNAP/bin
+    plugs:
+      - alsa
+      - home
+      - network
+      - opengl
+      - pulseaudio
+      - removable-media
+
+parts:
+  alsa:
+    plugin: nil
+    source: https://github.com/diddledan/snapcraft-alsa.git
+    override-pull: |
+      cat > asound.conf <<EOF
+      pcm.!default {
+        type pulse
+        fallback "sysdefault"
+        hint {
+          show on
+          description "Default ALSA Output (currently PulseAudio Sound Server)"
+        }
+      }
+      ctl.!default {
+        type pulse
+        fallback "sysdefault"
+      }
+      EOF
+    override-build: |
+      install -m644 -D -t $SNAPCRAFT_PART_INSTALL/etc asound.conf
+    build-packages:
+      - libasound2-dev
+    stage-packages:
+      - libasound2
+      - libasound2-plugins
+  xournalpp:
+    after: [alsa]
+    plugin: cmake
+    source: https://github.com/xournalpp/xournalpp.git
+    source-tag: 1.1.0
+    cmake-parameters:
+      - "-DCMAKE_INSTALL_PREFIX=/usr"
+    #parse-info: [usr/share/metainfo/com.github.xournalpp.xournalpp.appdata.xml]
+    organize:
+       snap/xournalpp/current/usr: usr
+    override-pull: |
+      snapcraftctl pull
+      echo $(git describe --tags --abbrev=10)
+      # workaround nightly tag being set
+      #snapcraftctl set-version $(git describe --tags --abbrev=10)
+      snapcraftctl set-version 1.1.0
+    build-packages:
+      - git
+      - libpoppler-glib-dev
+      - libxml2-dev
+      - portaudio19-dev
+      - libsndfile-dev
+      - liblua5.3-dev
+      - libzip-dev
+      - dvipng
+      - texlive
+    stage-packages:
+      - texlive-latex-base
+      - texlive-binaries
+      - texlive-latex-extra
+      - binutils
+      - libzip5
+      - libxrender1
+      - libvorbisenc2
+      - libvorbis0a
+      - libtiff5
+      - libthai0
+      - libsndfile1
+      - libportaudio2
+      - libpoppler97
+      - libpoppler-glib8
+      - libportaudiocpp0
+      - libogg0
+      - libnss3
+      - libnspr4
+      - liblua5.3-0
+      - liblcms2-2
+      - libjpeg-turbo8
+      - libjbig0
+      - libjack-jackd2-0
+      - libicu66
+      - libgraphite2-3
+      - libflac8
+      - libdatrie1
+      - libxi6
+    override-build: |
+      snapcraftctl build
+      sed -i 's|Icon=com.github.xournalpp.xournalpp|Icon=${SNAP}/usr/share/icons/hicolor/scalable/apps/com.github.xournalpp.xournalpp.svg|' ${SNAPCRAFT_PART_INSTALL}/usr/share/applications/com.github.xournalpp.xournalpp.desktop
+
+  # Find files provided by the base and platform snap and ensure they aren't
+  # duplicated in this snap
+  cleanup:
+    after: [xournalpp]
+    plugin: nil
+    build-snaps: [core20, gnome-3-38-2004]
+    override-prime: |
+      set -eux
+      for snap in "core20" "gnome-3-38-2004"; do
+        cd "/snap/$snap/current" && find . -type f,l -name *.so.* -exec rm -f "$SNAPCRAFT_PRIME/{}" \;
+      done
