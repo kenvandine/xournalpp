@@ -73,13 +73,12 @@ parts:
     source: https://github.com/xournalpp/xournalpp.git
     source-tag: 1.1.0
     cmake-parameters:
-      - "-DCMAKE_INSTALL_PREFIX=/snap/xournalpp/current/usr"
-    #parse-info: [usr/share/metainfo/com.github.xournalpp.xournalpp.appdata.xml]
+      - "-DCMAKE_INSTALL_PREFIX=/usr"
+    parse-info: [usr/share/metainfo/com.github.xournalpp.xournalpp.appdata.xml]
     organize:
        snap/xournalpp/current/usr: usr
     override-pull: |
       snapcraftctl pull
-      echo $(git describe --tags --abbrev=10)
       # workaround nightly tag being set
       #snapcraftctl set-version $(git describe --tags --abbrev=10)
       snapcraftctl set-version 1.1.0
@@ -95,9 +94,8 @@ parts:
       - dvipng
       - texlive
     stage-packages:
-      - texlive-latex-base
       - texlive-binaries
-      - texlive-latex-extra
+      - texlive-latex-base
       - binutils
       - libzip5
       - libxrender1
@@ -123,9 +121,10 @@ parts:
       - libflac8
       - libdatrie1
       - libxi6
+      - lua-lgi
     override-build: |
       snapcraftctl build
-      sed -i 's|Icon=com.github.xournalpp.xournalpp|Icon=${SNAP}/usr/share/icons/hicolor/scalable/apps/com.github.xournalpp.xournalpp.svg|' ${SNAPCRAFT_PART_INSTALL}/snap/xournalpp/current/usr/share/applications/com.github.xournalpp.xournalpp.desktop
+      sed -i 's|Icon=com.github.xournalpp.xournalpp|Icon=${SNAP}/usr/share/icons/hicolor/scalable/apps/com.github.xournalpp.xournalpp.svg|' ${SNAPCRAFT_PART_INSTALL}/usr/share/applications/com.github.xournalpp.xournalpp.desktop
 
   # Find files provided by the base and platform snap and ensure they aren't
   # duplicated in this snap
