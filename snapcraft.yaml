@@ -23,10 +23,6 @@ layout:
     bind-file: $SNAP/etc/asound.conf
   /usr/share/alsa/alsa.conf:
     bind-file: $SNAP/usr/share/alsa/alsa.conf
-  /usr/share/lua/5.3:
-    bind: $SNAP/usr/share/lua/5.3
-  /usr/lib/lua/5.3:
-    bind: $SNAP/usr/lib/lua/5.3
   /usr/share/texmf:
     bind: $SNAP/usr/share/texmf
   /usr/share/texlive/texmf-dist:
@@ -41,6 +37,10 @@ apps:
     environment:
       PATH: $PATH:$SNAP/usr/bin:$SNAP/bin
       TEXTDOMAINDIR: $SNAP/usr/share/locale
+      # Make the bundled lua-lgi work
+      LUA_PATH: $SNAP/usr/share/lua/5.3/?.lua
+      LUA_CPATH: $SNAP/usr/lib/x86_64-linux-gnu/lua/5.3/?.so
+
     plugs:
       - alsa
       - home
