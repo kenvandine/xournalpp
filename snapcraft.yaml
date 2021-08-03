@@ -127,27 +127,29 @@ parts:
       snapcraftctl build
       sed -i 's|Icon=com.github.xournalpp.xournalpp|Icon=${SNAP}/usr/share/icons/hicolor/scalable/apps/com.github.xournalpp.xournalpp.svg|' ${SNAPCRAFT_PART_INSTALL}/usr/share/applications/com.github.xournalpp.xournalpp.desktop
 
-  tinytex:
+  tinytex:    # this is based on TinyTeX, available on https://github.com/yihui/tinytex
     plugin: nil
     build-packages: 
       - wget
     build-environment:
-      - TINYTEX_INSTALLER: "TinyTeX-1"        # Use "TinyTeX-0" for the bare minimum, "TinyTeX-1" for an average tiny installation and "TinyTeX" for more packages
-      - TINYTEX_VERSION: "2021.07"            # release date, see https://github.com/yihui/tinytex-releases/tags
-      - TINYTEX_URL: "https://github.com/yihui/tinytex-releases/releases/download/v$TINYTEX_VERSION/$TINYTEX_INSTALLER-v$TINYTEX_VERSION"
-      - TINYTEX_DIR: "${SNAPCRAFT_PART_INSTALL}/usr/share/.TinyTeX"
-    override-build: |     
-      rm -rf $TINYTEX_DIR
+      - TEXDIR: "${SNAPCRAFT_PART_INSTALL}/usr/share/.TinyTeX"
+      - PKGLIST: ${SNAPCRAFT_PROJECT_DIR}/pkgs-custom.txt                 # added some packages to https://github.com/yihui/tinytex/blob/master/tools/pkgs-custom.txt 
+    override-build: |     # this is a shortened version of https://github.com/yihui/tinytex/blob/master/tools/install-unx.sh 
+      PREVWD=${PWD}
       cd ${TMPDIR:-/tmp}
-      wget -O TinyTeX.tar.gz ${TINYTEX_URL}.tar.gz
-      mkdir -p $TINYTEX_DIR
-      tar xzf TinyTeX.tar.gz -C $(dirname $TINYTEX_DIR)
-      rm TinyTeX.tar.gz
-      
-      cd $TINYTEX_DIR/bin/*/
-      ./tlmgr option repository ctan
-      ./tlmgr install standalone varwidth scontents        # These packages are needed with the default LaTeX template in Xournal++; add more if required
 
+      rm -f install-tl-unx.tar.gz tinytex.profile
+      wget -qO- https://yihui.org/gh/tinytex/tools/install-base.sh | sh -s - "$@"
+
+      rm -rf $TEXDIR
+      mkdir -p $TEXDIR
+      mv texlive/* $TEXDIR
+      rm -r texlive
+      # finished base
+
+      $TEXDIR/bin/*/tlmgr install $(cat $PKGLIST | tr '\n' ' ')
+      # added additional packages
+  
   # Find files provided by the base and platform snap and ensure they aren't
   # duplicated in this snap
   cleanup:
