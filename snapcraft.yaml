@@ -23,10 +23,6 @@ layout:
     bind-file: $SNAP/etc/asound.conf
   /usr/share/alsa/alsa.conf:
     bind-file: $SNAP/usr/share/alsa/alsa.conf
-  /usr/share/texmf:
-    bind: $SNAP/usr/share/texmf
-  /usr/share/texlive/texmf-dist:
-    bind: $SNAP/usr/share/texlive/texmf-dist
 
 apps:
   xournalpp:
@@ -35,7 +31,7 @@ apps:
     desktop: usr/share/applications/com.github.xournalpp.xournalpp.desktop
     extensions: [gnome-3-38]
     environment:
-      PATH: $PATH:$SNAP/usr/bin:$SNAP/bin
+      PATH: $PATH:$SNAP/usr/bin:$SNAP/bin:$SNAP/usr/share/.TinyTeX/bin/x86_64-linux
       TEXTDOMAINDIR: $SNAP/usr/share/locale
       # Make the bundled lua-lgi work
       LUA_PATH: $SNAP/usr/share/lua/5.3/?.lua
@@ -100,11 +96,7 @@ parts:
       - liblua5.3-dev
       - libzip-dev
       - dvipng
-      - texlive
     stage-packages:
-      - texlive-binaries
-      - texlive-latex-base
-      - texlive-latex-extra
       - binutils
       - libzip5
       - libxrender1
@@ -134,6 +126,27 @@ parts:
     override-build: |
       snapcraftctl build
       sed -i 's|Icon=com.github.xournalpp.xournalpp|Icon=${SNAP}/usr/share/icons/hicolor/scalable/apps/com.github.xournalpp.xournalpp.svg|' ${SNAPCRAFT_PART_INSTALL}/usr/share/applications/com.github.xournalpp.xournalpp.desktop
+
+  tinytex:
+    plugin: nil
+    build-packages: 
+      - wget
+    build-environment:
+      - TINYTEX_INSTALLER: "TinyTeX-1"        # Use "TinyTeX-0" for the bare minimum, "TinyTeX-1" for an average tiny installation and "TinyTeX" for more packages
+      - TINYTEX_VERSION: "2021.07"            # release date, see https://github.com/yihui/tinytex-releases/tags
+      - TINYTEX_URL: "https://github.com/yihui/tinytex-releases/releases/download/v$TINYTEX_VERSION/$TINYTEX_INSTALLER-v$TINYTEX_VERSION"
+      - TINYTEX_DIR: "${SNAPCRAFT_PART_INSTALL}/usr/share/.TinyTeX"
+    override-build: |     
+      rm -rf $TINYTEX_DIR
+      cd ${TMPDIR:-/tmp}
+      wget -O TinyTeX.tar.gz ${TINYTEX_URL}.tar.gz
+      mkdir -p $TINYTEX_DIR
+      tar xzf TinyTeX.tar.gz -C $(dirname $TINYTEX_DIR)
+      rm TinyTeX.tar.gz
+      
+      cd $TINYTEX_DIR/bin/*/
+      ./tlmgr option repository ctan
+      ./tlmgr install standalone varwidth scontents        # These packages are needed with the default LaTeX template in Xournal++; add more if required
 
   # Find files provided by the base and platform snap and ensure they aren't
   # duplicated in this snap
