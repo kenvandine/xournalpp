@@ -23,10 +23,6 @@ layout:
     bind-file: $SNAP/etc/asound.conf
   /usr/share/alsa/alsa.conf:
     bind-file: $SNAP/usr/share/alsa/alsa.conf
-  /usr/share/texmf:
-    bind: $SNAP/usr/share/texmf
-  /usr/share/texlive/texmf-dist:
-    bind: $SNAP/usr/share/texlive/texmf-dist
 
 apps:
   xournalpp:
@@ -35,11 +31,11 @@ apps:
     desktop: usr/share/applications/com.github.xournalpp.xournalpp.desktop
     extensions: [gnome-3-38]
     environment:
-      PATH: $PATH:$SNAP/usr/bin:$SNAP/bin
+      PATH: $PATH:$SNAP/usr/bin:$SNAP/bin:$SNAP/usr/share/.TinyTeX/bin/x86_64-linux:$SNAP/usr/share/.TinyTeX/bin/aarch64-linux
       TEXTDOMAINDIR: $SNAP/usr/share/locale
       # Make the bundled lua-lgi work
       LUA_PATH: $SNAP/usr/share/lua/5.3/?.lua
-      LUA_CPATH: $SNAP/usr/lib/x86_64-linux-gnu/lua/5.3/?.so
+      LUA_CPATH: $SNAP/usr/lib/x86_64-linux-gnu/lua/5.3/?.so:$SNAP/usr/lib/aarch64-linux-gnu/lua/5.3/?.so
 
     plugs:
       - alsa
@@ -100,11 +96,7 @@ parts:
       - liblua5.3-dev
       - libzip-dev
       - dvipng
-      - texlive
     stage-packages:
-      - texlive-binaries
-      - texlive-latex-base
-      - texlive-latex-extra
       - binutils
       - libzip5
       - libxrender1
@@ -135,6 +127,29 @@ parts:
       snapcraftctl build
       sed -i 's|Icon=com.github.xournalpp.xournalpp|Icon=${SNAP}/usr/share/icons/hicolor/scalable/apps/com.github.xournalpp.xournalpp.svg|' ${SNAPCRAFT_PART_INSTALL}/usr/share/applications/com.github.xournalpp.xournalpp.desktop
 
+  tinytex:    # this is based on TinyTeX, available on https://github.com/yihui/tinytex
+    plugin: nil
+    build-packages: 
+      - wget
+    build-environment:
+      - TEXDIR: "${SNAPCRAFT_PART_INSTALL}/usr/share/.TinyTeX"
+      - PKGLIST: ${SNAPCRAFT_PROJECT_DIR}/pkgs-custom.txt                 # added some packages to https://github.com/yihui/tinytex/blob/master/tools/pkgs-custom.txt 
+    override-build: |     # this is a shortened version of https://github.com/yihui/tinytex/blob/master/tools/install-unx.sh 
+      PREVWD=${PWD}
+      cd ${TMPDIR:-/tmp}
+
+      rm -f install-tl-unx.tar.gz tinytex.profile
+      wget -qO- https://yihui.org/gh/tinytex/tools/install-base.sh | sh -s - "$@"
+
+      rm -rf $TEXDIR
+      mkdir -p $TEXDIR
+      mv texlive/* $TEXDIR
+      rm -r texlive
+      # finished base
+
+      $TEXDIR/bin/*/tlmgr install $(cat $PKGLIST | tr '\n' ' ')
+      # added additional packages
+  
   # Find files provided by the base and platform snap and ensure they aren't
   # duplicated in this snap
   cleanup:
