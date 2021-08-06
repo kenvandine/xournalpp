@@ -31,11 +31,11 @@ apps:
     desktop: usr/share/applications/com.github.xournalpp.xournalpp.desktop
     extensions: [gnome-3-38]
     environment:
-      PATH: $PATH:$SNAP/usr/bin:$SNAP/bin:$SNAP/usr/share/.TinyTeX/bin/x86_64-linux
+      PATH: $PATH:$SNAP/usr/bin:$SNAP/bin:$SNAP/usr/share/.TinyTeX/bin/x86_64-linux:$SNAP/usr/share/.TinyTeX/bin/aarch64-linux
       TEXTDOMAINDIR: $SNAP/usr/share/locale
       # Make the bundled lua-lgi work
       LUA_PATH: $SNAP/usr/share/lua/5.3/?.lua
-      LUA_CPATH: $SNAP/usr/lib/x86_64-linux-gnu/lua/5.3/?.so
+      LUA_CPATH: $SNAP/usr/lib/x86_64-linux-gnu/lua/5.3/?.so:$SNAP/usr/lib/aarch64-linux-gnu/lua/5.3/?.so
 
     plugs:
       - alsa
