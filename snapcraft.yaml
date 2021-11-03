@@ -9,6 +9,7 @@ confinement: strict
 base: core20
 architectures:
   - build-on: amd64
+  - build-on: arm64
 
 slots:
   dbus-xournalpp:
