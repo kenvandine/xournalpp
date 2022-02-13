@@ -76,7 +76,7 @@ parts:
     after: [alsa]
     plugin: cmake
     source: https://github.com/xournalpp/xournalpp.git
-    source-tag: 1.1.0
+    source-tag: v1.1.1
     cmake-parameters:
       - "-DCMAKE_INSTALL_PREFIX=/usr"
     parse-info: [usr/share/metainfo/com.github.xournalpp.xournalpp.appdata.xml]
@@ -86,7 +86,7 @@ parts:
       snapcraftctl pull
       # workaround nightly tag being set
       #snapcraftctl set-version $(git describe --tags --abbrev=10)
-      snapcraftctl set-version 1.1.0
+      snapcraftctl set-version 1.1.1
 
     build-packages:
       - git
