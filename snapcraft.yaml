@@ -1,12 +1,8 @@
 name: xournalpp
 adopt-info: xournalpp
-summary: Xournal++
-description: |
-  Handwriting notetaking software with PDF annotation support
-
 grade: stable
 confinement: strict
-base: core20
+base: core22
 architectures:
   - build-on: amd64
   - build-on: arm64
@@ -18,8 +14,8 @@ slots:
     name: com.github.xournalpp.xournalpp
 
 layout:
-  /usr/lib/$SNAPCRAFT_ARCH_TRIPLET/alsa-lib:
-    bind: $SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET/alsa-lib
+  /usr/lib/$CRAFT_ARCH_TRIPLET/alsa-lib:
+    bind: $SNAP/usr/lib/$CRAFT_ARCH_TRIPLET/alsa-lib
   /etc/asound.conf:
     bind-file: $SNAP/etc/asound.conf
   /usr/share/alsa/alsa.conf:
@@ -32,7 +28,7 @@ apps:
     command: usr/bin/xournalpp
     common-id: com.github.xournalpp.xournalpp.desktop
     desktop: usr/share/applications/com.github.xournalpp.xournalpp.desktop
-    extensions: [gnome-3-38]
+    extensions: [gnome]
     environment:
       PATH: $PATH:$SNAP/usr/bin:$SNAP/bin:$SNAP/usr/share/.TinyTeX/bin/x86_64-linux:$SNAP/usr/share/.TinyTeX/bin/aarch64-linux
       TEXTDOMAINDIR: $SNAP/usr/share/locale
@@ -68,7 +64,7 @@ parts:
       }
       EOF
     override-build: |
-      install -m644 -D -t $SNAPCRAFT_PART_INSTALL/etc asound.conf
+      install -m644 -D -t $CRAFT_PART_INSTALL/etc asound.conf
     build-packages:
       - libasound2-dev
     stage-packages:
@@ -84,16 +80,7 @@ parts:
     parse-info: [usr/share/metainfo/com.github.xournalpp.xournalpp.appdata.xml]
     organize:
        snap/xournalpp/current/usr: usr
-    override-pull: |
-      snapcraftctl pull
-      # workaround nightly tag being set
-      #snapcraftctl set-version $(git describe --tags --abbrev=10)
-      snapcraftctl set-version 1.1.3
-
     build-packages:
-      - git
-      - libpoppler-glib-dev
-      - libxml2-dev
       - portaudio19-dev
       - libsndfile-dev
       - liblua5.3-dev
@@ -101,7 +88,7 @@ parts:
       - dvipng
     stage-packages:
       - binutils
-      - libzip5
+      - libzip4
       - libxrender1
       - libvorbisenc2
       - libvorbis0a
@@ -109,10 +96,8 @@ parts:
       - libthai0
       - libsndfile1
       - libportaudio2
-      - libpoppler97
-      - libpoppler-glib8
-      - poppler-data
       - libportaudiocpp0
+      - poppler-data
       - libogg0
       - libnss3
       - libnspr4
@@ -121,23 +106,20 @@ parts:
       - libjpeg-turbo8
       - libjbig0
       - libjack-jackd2-0
-      - libicu66
+      - libicu70
       - libgraphite2-3
       - libflac8
       - libdatrie1
       - libxi6
       - lua-lgi
-    override-build: |
-      snapcraftctl build
-      sed -i 's|Icon=com.github.xournalpp.xournalpp|Icon=${SNAP}/usr/share/icons/hicolor/scalable/apps/com.github.xournalpp.xournalpp.svg|' ${SNAPCRAFT_PART_INSTALL}/usr/share/applications/com.github.xournalpp.xournalpp.desktop
 
   tinytex:    # this is based on TinyTeX, available on https://github.com/yihui/tinytex
     plugin: nil
     build-packages: 
       - wget
     build-environment:
-      - TEXDIR: "${SNAPCRAFT_PART_INSTALL}/usr/share/.TinyTeX"
-      - PKGLIST: ${SNAPCRAFT_PROJECT_DIR}/pkgs-custom.txt                 # added some packages to https://github.com/yihui/tinytex/blob/master/tools/pkgs-custom.txt 
+      - TEXDIR: "${CRAFT_PART_INSTALL}/usr/share/.TinyTeX"
+      - PKGLIST: ${CRAFT_PROJECT_DIR}/pkgs-custom.txt                 # added some packages to https://github.com/yihui/tinytex/blob/master/tools/pkgs-custom.txt
     override-build: |     # this is a shortened version of https://github.com/yihui/tinytex/blob/master/tools/install-unx.sh 
       PREVWD=${PWD}
       cd ${TMPDIR:-/tmp}
@@ -159,9 +141,9 @@ parts:
   cleanup:
     after: [xournalpp]
     plugin: nil
-    build-snaps: [core20, gnome-3-38-2004]
+    build-snaps: [core22, gnome-42-2204]
     override-prime: |
       set -eux
-      for snap in "core20" "gnome-3-38-2004"; do
-        cd "/snap/$snap/current" && find . -type f,l -name *.so.* -exec rm -f "$SNAPCRAFT_PRIME/{}" \;
+      for snap in "core22" "gnome-42-2204"; do
+        cd "/snap/$snap/current" && find . -type f,l -name *.so.* -exec rm -f "$CRAFT_PRIME/{}" \;
       done
