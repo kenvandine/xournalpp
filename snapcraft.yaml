@@ -1,5 +1,7 @@
 name: xournalpp
 adopt-info: xournalpp
+icon: snap/gui/com.github.xournalpp.xournalpp.svg
+
 grade: stable
 confinement: strict
 base: core22
@@ -26,8 +28,7 @@ layout:
 apps:
   xournalpp:
     command: usr/bin/xournalpp
-    common-id: com.github.xournalpp.xournalpp.desktop
-    desktop: usr/share/applications/com.github.xournalpp.xournalpp.desktop
+    common-id: com.github.xournalpp.xournalpp
     extensions: [gnome]
     environment:
       PATH: $PATH:$SNAP/usr/bin:$SNAP/bin:$SNAP/usr/share/.TinyTeX/bin/x86_64-linux:$SNAP/usr/share/.TinyTeX/bin/aarch64-linux
