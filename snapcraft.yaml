@@ -28,6 +28,7 @@ layout:
 apps:
   xournalpp:
     command: usr/bin/xournalpp
+    desktop: usr/share/applications/com.github.xournalpp.xournalpp.desktop
     common-id: com.github.xournalpp.xournalpp
     extensions: [gnome]
     environment:
