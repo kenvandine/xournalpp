@@ -114,6 +114,9 @@ parts:
       - libxi6
       - lua-lgi
       - libgtksourceview-4-0
+    override-build: |
+      craftctl default
+      sed -i 's|Icon=com.github.xournalpp.xournalpp|Icon=${SNAP}/usr/share/icons/hicolor/scalable/apps/com.github.xournalpp.xournalpp.svg|' ${CRAFT_PART_INSTALL}/usr/share/applications/com.github.xournalpp.xournalpp.desktop
 
   tinytex:    # this is based on TinyTeX, available on https://github.com/yihui/tinytex
     plugin: nil
