@@ -37,6 +37,7 @@ apps:
       # Make the bundled lua-lgi work
       LUA_PATH: $SNAP/usr/share/lua/5.3/?.lua
       LUA_CPATH: $SNAP/usr/lib/x86_64-linux-gnu/lua/5.3/?.so;$SNAP/usr/lib/aarch64-linux-gnu/lua/5.3/?.so
+      TEXMFVAR: $SNAP_USER_COMMON/.cache/texmf-var  # The default is not a writeable directory
 
     plugs:
       - alsa
