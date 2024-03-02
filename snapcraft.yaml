@@ -77,7 +77,7 @@ parts:
     after: [alsa]
     plugin: cmake
     source: https://github.com/xournalpp/xournalpp.git
-    source-tag: v1.2.2
+    source-tag: v1.2.3
     cmake-parameters:
       - "-DCMAKE_INSTALL_PREFIX=/usr"
     parse-info: [usr/share/metainfo/com.github.xournalpp.xournalpp.appdata.xml]
